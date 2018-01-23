@@ -2,12 +2,12 @@
 NIMDA.py is a Bruteforcing tool for any login page
 you need to provide necessary details and then ready to go
 
-parameters:
+##parameters:
 
-help -> python brute.py help
+**help** -> python brute.py help
 
-url -> target url for submition post request
-example: python brute.py url='http://exmpl.cm/lg.php' 
+**url** -> target url for submition post request
+*example*: `python brute.py url='http://exmpl.cm/lg.php'` 
 
 username -> username detiles with html form name and it's value
 example: <input type="text" value="site_admin" name="pg_user">
