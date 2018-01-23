@@ -1,19 +1,8 @@
-from pyquery import PyQuery
 import operator
 import requests
 import time
 import sys
 import os
-
-def mylogo():
-    print """{}
- mm   m mmmmm  m    m mmmm     mm
- #"m  #   #    ##  ## #   "m   ##
- # #m #   #    # ## # #    #  #  #
- #  # #   #    # "" # #    #  #mm#
- #   ## mm#mm  #    # #mmm"  #    #
-
-    {}""".format(bcolors.WARNING, bcolors.ENDC)
 
 class bcolors:
     HEADER = '\033[95m'
@@ -24,6 +13,21 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+try:
+    from pyquery import PyQuery
+except ImportError:
+    raise ImportError('%sYou need to install pyquery library. Run: sudo pip install pyquery%s' %(bcolors.FAIL, bcolors.ENDC))
+
+def mylogo():
+    print """{}
+ mm   m mmmmm  m    m mmmm     mm
+ #"m  #   #    ##  ## #   "m   ##
+ # #m #   #    # ## # #    #  #  #
+ #  # #   #    # "" # #    #  #mm#
+ #   ## mm#mm  #    # #mmm"  #    #
+
+    {}""".format(bcolors.WARNING, bcolors.ENDC)
 
 
 
