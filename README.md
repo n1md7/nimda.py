@@ -1,4 +1,4 @@
-# nimda.py
+# Nimda.py
 **NIMDA.py is a Bruteforcing tool for any login page.
 You just need to provide necessary details and then it is ready to go.**
 
