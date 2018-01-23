@@ -1,24 +1,24 @@
 # nimda.py
-NIMDA.py is a Bruteforcing tool for any login page
-you need to provide necessary details and then ready to go
+** NIMDA.py is a Bruteforcing tool for any login page
+you need to provide necessary details and then ready to go. **
 
 ## Parameters:
 
-- **url** 
-- **username** 
-- **password** 
-- **post-data** 
-- **csrf-selector** 
-- **csrf-token-name** 
-- **content-text** 
-- **not-content-text** 
-- **content-header** 
-- **not-content-header** 
-- **first-match** 
-- **show-response-html** 
-- **show-response-header** 
-- **progress-bar** 
-- **veerbose** 
+- * url *  
+- * username *  
+- * password *  
+- * post-data *  
+- * csrf-selector *  
+- * csrf-token-name *  
+- * content-text *  
+- * not-content-text *  
+- * content-header *  
+- * not-content-header *  
+- * first-match *  
+- * show-response-html *  
+- * show-response-header *  
+- * progress-bar *  
+- * verbose *  
 
 
 ## Explanation
