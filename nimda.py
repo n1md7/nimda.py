@@ -62,6 +62,7 @@ class Brute:
         self.setCookie = ''
         self.statusCode = 0
         self.formName = dict()
+        self.ses = requests.session()
 
     def setUrl(self, url):
         self.url = url
@@ -112,7 +113,7 @@ class Brute:
 
         # self.postJson.update({"ninja":"bliaz"})
         # print tmpJson
-        return requests.post(self.url, data = tmpJson,verify=False)
+        return self.ses.post(self.url, data = tmpJson,verify=False)
 
 
     def getCsrfToken(self, response, selector):
@@ -176,8 +177,9 @@ class Brute:
                         # print firstResp.cookies['wordpress_test_cookie']
                         # print self.setCookie
                         # print firstResp.cookies
-                        req = requests.post(self.url, data = self.postJson, cookies=firstResp.cookies, verify=False)
-                        firstResp = req
+                        # req = self.ses.post(self.url, data = self.postJson, cookies=firstResp.cookies, verify=False)
+                        req = self.ses.post(self.url, data = self.postJson, verify=False)
+                        # firstResp = req
                     except requests.exceptions.HTTPError as errh:
                         print ("Http Error:",errh)
                     except requests.exceptions.ConnectionError as errc:
@@ -221,6 +223,8 @@ class Brute:
                             print "{}".format(progressDash)
                         print "{} {} seconds elapsed".format(mySpinner, time.time() - self.startTime)
                     if (int(self.statusCode) == int(req.status_code)) or ((self.contentText != '' and self.contentText in req.text) or (self.notContentText != '' and self.notContentText not in req.text)) or ((self.contentHeader != '' and self.contentHeader in req.text) or (self.notContentHeader != '' and self.notContentHeader not in req.text)):
+                        # reset session 
+                        self.ses = requests.session()
                         progressDash += bcolors.OKGREEN +'*_*'+bcolors.ENDC
                         print "{}Correct combination! username: {}, password: {}; status-code  : {}{}".format(
                             bcolors.OKGREEN,
