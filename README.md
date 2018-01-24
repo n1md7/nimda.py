@@ -17,6 +17,7 @@ You just need to provide necessary details and it is ready to go.**
 - *content-header* 
 - *not-content-header* 
 - *first-match* 
+- *status-code* 
 - *show-response-html* 
 - *show-response-header* 
 - *progress-bar* 
@@ -81,6 +82,9 @@ Like: **Wrong**, **Incorrect login** and etc.
 **verbose** -> display more text
 
 **first-match** -> Stop when program finds first match combination 
+
+
+**atatus-code** -> Return correct if status code matches passed value of code
 
 
 # Example of brute-forcing *phpmyadmin*

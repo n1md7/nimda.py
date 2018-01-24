@@ -53,6 +53,7 @@ class Brute:
         self.contentHeader = ''
         self.notContentHeader = ''
         self.setCookie = ''
+        self.statusCode = 0
         self.formName = dict()
 
     def setUrl(self, url):
@@ -104,7 +105,7 @@ class Brute:
 
         # self.postJson.update({"ninja":"bliaz"})
         # print tmpJson
-        return requests.post(self.url, data = tmpJson)
+        return requests.post(self.url, data = tmpJson,verify=True)
 
 
     def getCsrfToken(self, response, selector):
@@ -166,7 +167,7 @@ class Brute:
                         # print firstResp.cookies['wordpress_test_cookie']
                         # print self.setCookie
                         # print firstResp.cookies
-                        req = requests.post(self.url, data = self.postJson, cookies=firstResp.cookies)
+                        req = requests.post(self.url, data = self.postJson, cookies=firstResp.cookies, verify=True)
                         firstResp = req
                     except requests.exceptions.HTTPError as errh:
                         print ("Http Error:",errh)
@@ -209,7 +210,7 @@ class Brute:
                         if self.progresBar == True:
                             print "{}".format(progressDash)
                         print "{} {} seconds elapsed".format(mySpinner, time.time() - self.startTime)
-                    if ((self.contentText != '' and self.contentText in req.text) or (self.notContentText != '' and self.notContentText not in req.text)) or ((self.contentHeader != '' and self.contentHeader in req.text) or (self.notContentHeader != '' and self.notContentHeader not in req.text)):
+                    if (int(self.statusCode) == int(req.status_code)) or ((self.contentText != '' and self.contentText in req.text) or (self.notContentText != '' and self.notContentText not in req.text)) or ((self.contentHeader != '' and self.contentHeader in req.text) or (self.notContentHeader != '' and self.notContentHeader not in req.text)):
                         progressDash += bcolors.OKGREEN +'*_*'+bcolors.ENDC
                         print "{}Correct combination! username: {}, password: {}; status-code  : {}{}".format(
                             bcolors.OKGREEN,
@@ -438,6 +439,8 @@ python nimda.py url='http://localhost/phpmyadmin/index.php' username='pma_userna
             b.responseHtml = True
         if usrkey[0] == 'show-response-header':
             b.responseHeader = True
+        if usrkey[0] == 'status-code':
+            b.statusCode = usrkey[1]
         # if usrkey[0] == 'cookie':
             # b.setCookie = 'wordpress_test_cookie=WP+Cookie+check'
 
