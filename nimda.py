@@ -112,7 +112,7 @@ class Brute:
 
         # self.postJson.update({"ninja":"bliaz"})
         # print tmpJson
-        return requests.post(self.url, data = tmpJson,verify=True)
+        return requests.post(self.url, data = tmpJson,verify=False)
 
 
     def getCsrfToken(self, response, selector):
