@@ -19,6 +19,12 @@ try:
 except ImportError:
     raise ImportError('%sYou need to install pyquery library. Run: sudo pip install pyquery%s' %(bcolors.FAIL, bcolors.ENDC))
 
+
+try:
+    from time import sleep
+except ImportError:
+    raise ImportError('%sYou need to install time/sleep library. Run: sudo pip install time or sleep%s' %(bcolors.FAIL, bcolors.ENDC))
+
 def mylogo():
     print """{}
  mm   m mmmmm  m    m mmmm     mm
@@ -37,6 +43,7 @@ class Brute:
     """docstring for Brute."""
     def __init__(self):
         self.verbose = False
+        self.delaySec = 0
         self.debugging = False
         self.breakFirstMatch = False
         self.postJson = dict()
@@ -124,6 +131,7 @@ class Brute:
 
         print "Trying combination of usernames {} with provided passwords from {} file".format(self.usernames, self.passwordsTxt)
         print "Brute-forcing %s" % (self.url)
+        print "Delay is  %s milliseconds" % (self.delaySec)
 
         progressDash = ''
         csrf_token = self.getCsrfToken(firstResp, self.csrfSelector).val()
@@ -132,6 +140,7 @@ class Brute:
         for usrnms in self.usernames:
             with open(self.passwordsTxt) as _dict:
                 for passwd in _dict:
+                    sleep(int(self.delaySec)/1000)#milliseconds
                     # session = requests.Session()
                     myCounter+=1
                     # remove previous username adn passwords and csrf
@@ -205,6 +214,7 @@ class Brute:
 
                     if self.verbose != True:
                         print "Brute-forcing: {}".format(self.url)
+                        print "Delay is  %s milliseconds" % (self.delaySec)
                         print "{} : {}".format(usrnms, passwd.rstrip())
                         print "{} out of {}".format(myCounter, sizeOfDict)
                         if self.progresBar == True:
@@ -271,7 +281,6 @@ if __name__ == "__main__":
 
         if usrkey[0] == 'h' or usrkey[0] == 'help' or usrkey[0] == '-h' or usrkey[0] == '--help':
             print """
-Please see my github page: https://bichiko.github.io/nimda.py/
 
 # nimda.py
 **NIMDA.py is a Bruteforcing tool for any login page.
@@ -280,6 +289,7 @@ You just need to provide necessary details and then it is ready to go.**
 ## Parameters:
 
 - *url* 
+- *delay*  
 - *username* 
 - *password* 
 - *post-data* 
@@ -299,6 +309,8 @@ You just need to provide necessary details and then it is ready to go.**
 ## Explanation
 
 **help** -> Display help
+
+**delay** -> Delay requests in milliseconds, delay='3000' delays 3 seconds per request
 
 **url** -> Set target url for submission post request
 example: `python nimda.py url='http://exmpl.cm/lg.php'` 
@@ -441,6 +453,8 @@ python nimda.py url='http://localhost/phpmyadmin/index.php' username='pma_userna
             b.responseHeader = True
         if usrkey[0] == 'status-code':
             b.statusCode = usrkey[1]
+        if usrkey[0] == 'delay':
+            b.delaySec = usrkey[1]
         # if usrkey[0] == 'cookie':
             # b.setCookie = 'wordpress_test_cookie=WP+Cookie+check'
 

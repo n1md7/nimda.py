@@ -7,6 +7,7 @@ You just need to provide necessary details and it is ready to go.**
 ## Parameters:
 
 - *url* 
+- *delay* 
 - *username* 
 - *password* 
 - *post-data* 
@@ -27,6 +28,8 @@ You just need to provide necessary details and it is ready to go.**
 ## Explanation
 
 **help** -> Display help
+
+**delay** -> Delay in milliseconds per request
 
 **url** -> Set target url for submission post request
 example: `python nimda.py url='http://exmpl.cm/lg.php'` 
@@ -124,7 +127,7 @@ Displays Error : `Access denied for user` which is only if authentication fails
 Our Code for Brute-forcing is:
 
 ```
-python nimda.py url='http://localhost/phpmyadmin/index.php' username='pma_username=root,admin,nimda,ttu' password='pma_password=./small.txt' csrf-token-name='token' csrf-selector='input[name="token"]' post-data='server=1&target=index.php' not-content-text='Access denied for user'
+python nimda.py delay='10' url='http://localhost/phpmyadmin/index.php' username='pma_username=root,admin,nimda,ttu' password='pma_password=./small.txt' csrf-token-name='token' csrf-selector='input[name="token"]' post-data='server=1&target=index.php' not-content-text='Access denied for user'
 ```
 <img src="./img/1.png">
 
