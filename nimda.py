@@ -140,7 +140,7 @@ class Brute:
         for usrnms in self.usernames:
             with open(self.passwordsTxt) as _dict:
                 for passwd in _dict:
-                    sleep(int(self.delaySec)/1000)#milliseconds
+                    sleep(float(self.delaySec)/1000)#milliseconds
                     # session = requests.Session()
                     myCounter+=1
                     # remove previous username adn passwords and csrf
