@@ -176,7 +176,7 @@ class Brute:
                         # print firstResp.cookies['wordpress_test_cookie']
                         # print self.setCookie
                         # print firstResp.cookies
-                        req = requests.post(self.url, data = self.postJson, cookies=firstResp.cookies, verify=True)
+                        req = requests.post(self.url, data = self.postJson, cookies=firstResp.cookies, verify=False)
                         firstResp = req
                     except requests.exceptions.HTTPError as errh:
                         print ("Http Error:",errh)
