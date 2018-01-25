@@ -47,9 +47,9 @@ Dict file: `./lsts/passwords.lst`
 then: `python nimda.py password='pg_passwd=./lsts/passwords.lst'`
 
 
-Some login forms are protected with some CSRF TOKENS.
-Web page generates token injects in login page and excepts this value for next login request.
-If it isn't there or is incorrect value then server blocks our requests.
+Some login forms are protected with CSRF TOKENS.
+Web page generates a token, injects in login page and expects that value for the next login request.
+If it's not there or is incorrect value then server blocks current request.
 But we can bypass it by specifying csrf-token-name and csrf-selector
 example: `<input type="hidden" value="GFHKJ4576jhasldL:IUGBVCRTU" name="cstf_hid_token">`
 then: `csrf-token-name='cstf_hid_token'`
