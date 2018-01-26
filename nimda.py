@@ -94,6 +94,7 @@ class Brute:
         self.postJson = dict()
         self.formName = dict()
         self.ses = requests.session()
+        self.os = 'win' if os.name == 'nt' else 'lin'
 
     #Method URL setter
     def setUrl(self, url):
@@ -247,7 +248,7 @@ class Brute:
 
                     #spinner. Custom loading gif 
                     if self.verbose != True:
-                        os.system('clear')
+                        os.system('cls') if self.os == 'win' else os.system('clear')
                         mySpinner = '\ '
                         if self.requestsCounter % 4 == 0:
                             mySpinner = '\ '
@@ -340,24 +341,16 @@ if __name__ == "__main__":
             helpFile.close()
             break
         #set values to object variables
-        if usrkey[0] == 'csrf-token-name':
-            brt.setCsrf(usrkey[1])
-        if usrkey[0] == 'username':
-            brt.setUsernames(usrkey[1])
-        if usrkey[0] == 'url':
-            brt.setUrl(usrkey[1])
-        if usrkey[0] == 'password':
-            brt.setPasswords(usrkey[1])
-        if usrkey[0] == 'post-data':
-            brt.setPostData(usrkey[1])
-        if usrkey[0] == 'verbose':
-            brt.verbose = True
-        if usrkey[0] == 'debugging':
-            brt.debugging = True
-        if usrkey[0] == 'first-match':
-            brt.breakFirstMatch = True
-        if usrkey[0] == 'csrf-selector':
-            brt.csrfSelector = usrkey[1]
+        brt.setCsrf(usrkey[1]) if usrkey[0] == 'csrf-token-name' else ''
+        brt.setUsernames(usrkey[1]) if usrkey[0] == 'username' else None
+        brt.setUrl(usrkey[1]) if usrkey[0] == 'url' else None
+        brt.setPasswords(usrkey[1]) if usrkey[0] == 'password' else None
+        brt.setPostData(usrkey[1]) if usrkey[0] == 'post-data' else ''
+        brt.verbose = True if usrkey[0] == 'verbose' else False
+        brt.debugging = True if usrkey[0] == 'debugging' else False
+        brt.breakFirstMatch = True if usrkey[0] == 'first-match' else False
+        brt.csrfSelector = usrkey[1] if usrkey[0] == 'csrf-selector' else ''
+            
         if usrkey[0] == 'content-text':
             brt.contentText = usrkey[1]
         if usrkey[0] == 'not-content-header':
