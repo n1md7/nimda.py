@@ -341,16 +341,18 @@ if __name__ == "__main__":
             helpFile.close()
             break
         #set values to object variables
-        brt.setCsrf(usrkey[1]) if usrkey[0] == 'csrf-token-name' else ''
-        brt.setUsernames(usrkey[1]) if usrkey[0] == 'username' else None
-        brt.setUrl(usrkey[1]) if usrkey[0] == 'url' else None
-        brt.setPasswords(usrkey[1]) if usrkey[0] == 'password' else None
-        brt.setPostData(usrkey[1]) if usrkey[0] == 'post-data' else ''
-        brt.verbose = True if usrkey[0] == 'verbose' else False
-        brt.debugging = True if usrkey[0] == 'debugging' else False
-        brt.breakFirstMatch = True if usrkey[0] == 'first-match' else False
-        brt.csrfSelector = usrkey[1] if usrkey[0] == 'csrf-selector' else ''
-            
+        if usrkey[0] == 'username':
+            brt.setUsernames(usrkey[1]) 
+        if usrkey[0] == 'url':
+            brt.setUrl(usrkey[1]) 
+        if usrkey[0] == 'password':
+            brt.setPasswords(usrkey[1]) 
+        if usrkey[0] == 'post-data':
+            brt.setPostData(usrkey[1]) 
+        if usrkey[0] == 'csrf-selector':
+            brt.csrfSelector = usrkey[1] 
+        if usrkey[0] == 'csrf-token-name':
+            brt.setCsrf(usrkey[1]) 
         if usrkey[0] == 'content-text':
             brt.contentText = usrkey[1]
         if usrkey[0] == 'not-content-header':
@@ -369,6 +371,10 @@ if __name__ == "__main__":
             brt.statusCode = usrkey[1]
         if usrkey[0] == 'delay':
             brt.delaySec = usrkey[1]
+
+        brt.verbose = True if usrkey[0] == 'verbose' else False
+        brt.debugging = True if usrkey[0] == 'debugging' else False
+        brt.breakFirstMatch = True if usrkey[0] == 'first-match' else False
 
     #if program is in exec mode then execute it
     brt.startProccessing() if execProgram else None
