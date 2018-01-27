@@ -23,6 +23,10 @@ You just need to provide necessary details and it is ready to go.**
 - *show-response-header* 
 - *progress-bar* 
 - *verbose* 
+- *redirect-check* 
+- *cookies* 
+- *user-agent* 
+- *method* 
 
 
 ## Explanation
@@ -86,8 +90,15 @@ Like: **Wrong**, **Incorrect login** and etc.
 
 **first-match** -> Stop when program finds first match combination 
 
+**status-code** -> Return correct if status code matches passed value of code
 
-**atatus-code** -> Return correct if status code matches passed value of code
+**cookies** -> Set custom cookies 
+
+**user-agent** -> Set custom user-agent 
+
+**method** -> Set request method type. default is POST 
+
+**redirect-check** -> Enable or disable redirect checking. Default is True ( option False) 
 
 
 # Example of brute-forcing *phpmyadmin*
