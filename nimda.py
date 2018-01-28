@@ -9,11 +9,19 @@ nimda = """
 
 {} v {} {}
 """
-import operator
-import requests
-import time
-import sys
-import os
+
+try:
+    import operator
+    import requests
+    import datetime
+    import time
+    import sys
+    import os
+except ImportError:
+    raise ImportError('<Errors occured :(. Some importing problem detected>')
+
+initTime = datetime.datetime.now().time()
+
 
 def checkForUpdates():
     try:
@@ -49,32 +57,37 @@ class bcolors:
 
 
 class CliPrint:
+    def __init__(self):
+        self.currTime = datetime.datetime.now().time()
+
     def printLogo(self):
         print nimda.format(bcolors.WARNING,bcolors.FAIL, version, bcolors.ENDC)
 
     def headerText(self, this):
-        print "Trying combination of username(s) {} with provided passwords from {} file".format(this.usernames, this.passwordsTxt)
-        print "Brute-forcing %s" % (this.url)
-        print "Delay is  %s milliseconds" % (this.delaySec)
-        print "Request method : %s" % (this.method.upper())
+        print "[{}] Trying combination of username(s) {} with provided passwords from {} file".format(initTime,this.usernames, this.passwordsTxt)
+        print "[%s] Brute-forcing %s" % (initTime,this.url)
+        print "[%s] Delay is  %s milliseconds" % (initTime,this.delaySec)
+        print "[%s] Request method : %s" % (initTime,this.method.upper())
         
 
     def errorText(self, text, ext = False):
-        print bcolors.FAIL+str(text)+bcolors.ENDC
+        print '['+str(self.currTime)+'] '+bcolors.FAIL+str(text)+bcolors.ENDC
         sys.exit(0) if ext else None
     
     def infoText(self, text, ext = False):
-        print bcolors.OKBLUE+str(text)+bcolors.ENDC+'\n'
+        print '['+str(self.currTime)+'] '+bcolors.OKBLUE+str(text)+bcolors.ENDC+'\n'
         sys.exit(0) if ext else None
 
     def warnText(self, text, ext = False):
-        print bcolors.WARNING+str(text)+bcolors.ENDC+'\n'
+        print '['+str(self.currTime)+'] '+bcolors.WARNING+str(text)+bcolors.ENDC+'\n'
         sys.exit(0) if ext else None
 
     def purpleText(self, text, ext = False):
-        print bcolors.HEADER+str(text)+bcolors.ENDC
+        print '['+str(self.currTime)+'] '+bcolors.HEADER+str(text)+bcolors.ENDC
         sys.exit(0) if ext else None
 
+    def getTime(self):
+        return str(self.currTime)
 
 try:
     from pyquery import PyQuery
@@ -227,6 +240,24 @@ class Brute:
         # CliPrint().errorText('content-text or not-content-text or content-header or not-content-header isn\'t defined or defined incorrectly', True) if (impVars[3][0] == impVars[3][1] and impVars[3][2] == impVars[3][3] and impVars[3][0] == '') else None
         pass
 
+    def correctValOutput(self,PV,text,redir = False, corct = True):
+         # reset session 
+        correctValue = None
+        self.progressDots += bcolors.OKGREEN +'*'+bcolors.ENDC if len(self.progressDots) < 10000 else ''
+        stat_code = PV[8] if redir else PV[3]
+        correct = PV[0] if corct else PV[7]
+        if self.verbose:
+            correctValue = "{}{} : {}, data: {}{}".format(correct,text,stat_code,PV[4],PV[5])
+        else:
+            correctValue = "{}{}:{}{}".format(correct,PV[1],PV[2],PV[5])
+
+        #print correct value in specified mode
+        print '['+CliPrint().getTime()+'] '+correctValue
+        #save credentials in the array
+        self.correctCredentials.append(correctValue)
+        self.ses = requests.session()
+
+
     def startProccessing(self):
         #check whether important variables are defined or not
         self.checkDefinedVariables()
@@ -309,9 +340,6 @@ class Brute:
                             mySpinner = '- '
 
                     
-                    #reset progress-bar 
-                    if len(self.progressDots) > 10000:
-                        self.progressDots = ''
 
                     # if not verbose mode the output just correct credentials                   
                     if self.verbose != True:
@@ -343,67 +371,28 @@ class Brute:
                         #     self.hh %= 24
                         # print self.dd
                         # print "Estimate Time : %d day %d:%d:%d" % (self.dd,self.hh,self.mm,self.ss)
-                        if self.progresBar == True:
-                            print "{}".format(self.progressDots)
+                        print "{}".format(self.progressDots) if self.progresBar == True else None
+                            
                         CliPrint().purpleText("{} {} seconds elapsed".format(mySpinner, time.time() - self.startTime))
                     
-                    PV = [bcolors.OKGREEN, usrnms, passwd.rstrip(),req.status_code, self.postJson, bcolors.ENDC, bcolors.FAIL,bcolors.HEADER]
+                    PV = [bcolors.OKGREEN, usrnms, passwd.rstrip(),req.status_code, self.postJson, bcolors.ENDC, bcolors.FAIL,bcolors.HEADER,req.history]
                     
                     if (int(self.statusCode) == int(req.status_code)) or ((self.contentText != '' and self.contentText in req.text) or (self.notContentText != '' and self.notContentText not in req.text)) or ((self.contentHeader != '' and self.contentHeader in req.text) or (self.notContentHeader != '' and self.notContentHeader not in req.text)):
-                        # reset session 
-                        correctValue = None
-                        self.progressDots += bcolors.OKGREEN +'*'+bcolors.ENDC
-                              
-                        if self.verbose:
-                            correctValue = "{}Correct! status-code : {}, data: {}{}".format(PV[0],PV[3],PV[4],PV[5])
-                        else:
-                            correctValue = "{}Correct! {}:{}{}".format(PV[0],PV[1],PV[2],PV[5])
-
-                        #print correct value in specified mode
-                        print correctValue
-                        #save credentials in the array
-                        self.correctCredentials.append(correctValue)
-                        self.ses = requests.session()
-                        break
+                        self.correctValOutput(PV,'Correct! status-code');break
+                    
                     elif self.redirectCheck == True and len(req.history)>0:
-                        correctValue = None
-                        print self.redirectCheck
-                        self.progressDots += bcolors.OKGREEN +'*'+bcolors.ENDC
-                              
-                        if self.verbose:
-                            correctValue = "{}Correct! redirect-code : {}, data: {}{}".format(PV[0],req.history,PV[4],PV[5])
-                        else:
-                            correctValue = "{}Correct! {}:{}{}".format(PV[0],PV[1],PV[2],PV[5])
-
-                        #print correct value in specified mode
-                        print correctValue
-                        #save credentials in the array
-                        self.correctCredentials.append(correctValue)
-                        self.ses = requests.session()
-                        break
+                        self.correctValOutput(PV,'Correct! redirec-code',True);break
+                    
                     elif self.csrfEnabled and csrf_token == None:
-                        correctValue = None
-                        self.progressDots += bcolors.OKGREEN +'*'+bcolors.ENDC
-                              
-                        if self.verbose:
-                            correctValue = "{}Possible combination! can\'t find csrf_token' , data: {}{}".format(PV[7],PV[4],PV[5])
-                        else:
-                            correctValue = "{}Possible combination! {}:{}{}".format(PV[7],PV[1],PV[2],PV[5])
-
-                        #print correct value in specified mode
-                        print correctValue
-                        #save credentials in the array
-                        self.correctCredentials.append(correctValue)
-                        self.ses = requests.session()
-                        break
+                        self.correctValOutput(PV,'Possible combination! can\'t find csrf_token',False, False);break
                     else:
-                        self.progressDots += bcolors.FAIL +'.'+bcolors.ENDC
-                        if self.verbose == True:
-                            CliPrint().errorText("{}WRONG!  {}:{}, data: {}{}".format(PV[6],PV[1],PV[2],PV[4],PV[5]))
-                    if self.responseHtml == True:
-                        CliPrint().warnText("response-HTML: {}".format(req.text.encode('utf-8')))
-                    if self.responseHeader == True:
-                        CliPrint().warnText("response-header: {}".format(req.headers))
+                        self.progressDots += bcolors.FAIL +'.'+bcolors.ENDC if len(self.progressDots) < 10000 else ''
+                        CliPrint().errorText("{}WRONG! {}:{}, data: {}{}".format(PV[6],PV[1],PV[2],PV[4],PV[5])) if self.verbose == True else None
+                        
+                   
+                    CliPrint().warnText("response-HTML: {}".format(req.text.encode('utf-8'))) if self.responseHtml == True else None
+                    CliPrint().warnText("response-header: {}".format(req.headers)) if self.responseHeader == True else None
+                    
                     if self.csrfEnabled == True:
                         csrf_token = self.getCsrfToken(req, self.csrfSelector).val()
 
