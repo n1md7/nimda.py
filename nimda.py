@@ -1,3 +1,4 @@
+version=1.4
 nimda = """
 {}
  mm   m mmmmm  m    m mmmm     mm
@@ -6,13 +7,32 @@ nimda = """
  #  # #   #    # "" # #    #  #mm#
  #   ## mm#mm  #    # #mmm"  #    #.py
 
-{} v 1.0 {}
+{} v {} {}
 """
 import operator
 import requests
 import time
 import sys
 import os
+
+def checkForUpdates():
+    try:
+        req = requests.get("https://raw.githubusercontent.com/bichiko/nimda.py/master/nimda1.4.py")
+        lines = req.text.split('\n')
+        for line in lines:
+            if "version" in line:
+                servVersion = float(line.split('=')[1]) 
+                if servVersion > version:
+                    usrans = raw_input("New version (%s) is avalialbe. Do you want to update it now? (Y/n) " % (servVersion))
+                    if usrans.lower() == 'y':
+                        f = open(__file__,"w+")
+                        f.write(req.text)
+                        f.close()
+                        print "Please run it again"
+                        sys.exit(0)
+            break
+    except Exception:
+        print "Error: In update checking"
 
 class bcolors:
     HEADER  =   '\033[95m'
@@ -28,12 +48,14 @@ class bcolors:
 
 class CliPrint:
     def printLogo(self):
-        print nimda.format(bcolors.WARNING,bcolors.FAIL, bcolors.ENDC)
+        print nimda.format(bcolors.WARNING,bcolors.FAIL, version, bcolors.ENDC)
 
     def headerText(self, this):
         print "Trying combination of username(s) {} with provided passwords from {} file".format(this.usernames, this.passwordsTxt)
         print "Brute-forcing %s" % (this.url)
         print "Delay is  %s milliseconds" % (this.delaySec)
+        print "Request method : %s" % (this.method.upper())
+        
 
     def errorText(self, text, ext = False):
         print bcolors.FAIL+str(text)+bcolors.ENDC
@@ -95,6 +117,27 @@ class Brute:
         self.formName = dict()
         self.ses = requests.session()
         self.os = 'win' if os.name == 'nt' else 'lin'
+        self.cookie = None
+        self.useragent = None
+        self.sslVerify = False
+        self.redirectCheck = True
+        self.method = 'POST'
+        self.tm_now = time.time()
+        self.tm_prev = 0.0
+        self.ss = 0
+        self.mm = 0
+        self.hh = 0
+        self.dd = 0
+
+
+
+    def getCookie(self):
+        cookieDict = dict()
+        if self.cookie is None:
+            return ''
+        cookieJar = [x.split('=') for x in self.cookie.split(";")]        
+        [cookieDict.update({key[0].strip():key[1].strip()}) for key in cookieJar]
+        return cookieDict
 
     #Method URL setter
     def setUrl(self, url):
@@ -126,7 +169,7 @@ class Brute:
             CliPrint().infoText('syntax: password=\'pwd=passwd.txt\'', True)
 
     #post data setter
-    def setPostData(self, pData):
+    def setData(self, pData):
         """ ppdata is without usernames and passwords """
         try:
             pdt = pData.split('&')
@@ -134,8 +177,8 @@ class Brute:
                 currel = pdt[x].split('=')
                 self.postJson.update({currel[0]:currel[1]})
         except Exception:
-            CliPrint().errorText('Error: Can\'t parse post-data')
-            CliPrint().infoText('syntax: post-data=\'param1=val1&param2=val2&signin=Sign In\'', True)
+            CliPrint().errorText('Error: Can\'t parse data')
+            CliPrint().infoText('syntax: data=\'param1=val1&param2=val2&signin=Sign In\'', True)
             
     # sned empty request to initialize parameters
     def sendEmptyPostRequest(self):
@@ -147,7 +190,10 @@ class Brute:
             self.postJson.update({self.formName['csrf']:'00000000'})
 
         try:
-            firstReq = self.ses.post(self.url, data = tmpJson,verify = False)
+            if self.method.lower() == 'post':
+                firstReq = self.ses.post(self.url, data = tmpJson, verify = self.sslVerify, cookies=self.getCookie(), headers={'user-agent':self.useragent})
+            else:
+                firstReq = self.ses.get(self.url, data = tmpJson, verify = self.sslVerify, cookies=self.getCookie(), headers={'user-agent':self.useragent})
         except Exception:
             CliPrint().errorText('Error: Can\'t send 1st request', True)
         return firstReq
@@ -162,22 +208,22 @@ class Brute:
         return tag
 
     def checkDefinedVariables(self):
-        impVars = [
-                    self.url,
-                    self.usernames,
-                    self.passwordsTxt,
-                    [
-                        self.contentText,
-                        self.notContentText,
-                        self.notContentHeader,
-                        self.contentHeader
-                    ]
-                ]
-        CliPrint().errorText('url isn\'t defined or defined incorrectly', True) if impVars[0] == None else None
-        CliPrint().errorText('username isn\'t defined or defined incorrectly', True) if impVars[1] == None else None
-        CliPrint().errorText('password isn\'t defined or defined incorrectly', True) if impVars[2] == None else None
-        CliPrint().errorText('content-text or not-content-text or content-header or not-content-header isn\'t defined or defined incorrectly', True) if (impVars[3][0] == impVars[3][1] and impVars[3][2] == impVars[3][3] and impVars[3][0] == '') else None
-
+        # impVars = [
+        #             self.url,
+        #             self.usernames,
+        #             self.passwordsTxt,
+        #             [
+        #                 self.contentText,
+        #                 self.notContentText,
+        #                 self.notContentHeader,
+        #                 self.contentHeader
+        #             ]
+        #         ]
+        # CliPrint().errorText('url isn\'t defined or defined incorrectly', True) if impVars[0] == None else None
+        # CliPrint().errorText('username isn\'t defined or defined incorrectly', True) if impVars[1] == None else None
+        # CliPrint().errorText('password isn\'t defined or defined incorrectly', True) if impVars[2] == None else None
+        # CliPrint().errorText('content-text or not-content-text or content-header or not-content-header isn\'t defined or defined incorrectly', True) if (impVars[3][0] == impVars[3][1] and impVars[3][2] == impVars[3][3] and impVars[3][0] == '') else None
+        pass
 
     def startProccessing(self):
         #check whether important variables are defined or not
@@ -233,7 +279,10 @@ class Brute:
                     # try to send request with current session
                     # ignore ssl check
                     try:
-                        req = self.ses.post(self.url, data = self.postJson, verify = False)
+                        if self.method.lower() == 'post':
+                            req = self.ses.post(self.url, data = self.postJson, verify = self.sslVerify, cookies=self.getCookie(), headers={'user-agent':self.useragent})
+                        else:
+                            req = self.ses.get(self.url, data = self.postJson, verify = self.sslVerify, cookies=self.getCookie(), headers={'user-agent':self.useragent})
                     except requests.exceptions.HTTPError as errh:
                         CliPrint().errorText("Http Error :"+errh, True)
                     except requests.exceptions.ConnectionError as errc:
@@ -243,8 +292,6 @@ class Brute:
                     except requests.exceptions.RequestException as err:
                         CliPrint().errorText("Error: Something happened "+err, True)
 
-                    if self.csrfEnabled == True:
-                        csrf_token = self.getCsrfToken(req, self.csrfSelector).val()
 
                     #spinner. Custom loading gif 
                     if self.verbose != True:
@@ -269,19 +316,39 @@ class Brute:
                         CliPrint().headerText(self)
                         for cr in self.correctCredentials:
                             print ' - '+ cr
-
                         CliPrint().purpleText("{} : {}".format(usrnms, passwd.rstrip()))
                         CliPrint().purpleText("{} out of {}".format(self.requestsCounter, sizeOfDict*len(self.usernames)))
+
+                        # self.tm_now = time.time()
+                        # self.ss = (self.tm_now-self.tm_prev)*((sizeOfDict*len(self.usernames))-self.requestsCounter)
+                        # print self.tm_now
+                        # print self.tm_prev
+                        # print float((self.tm_now-self.tm_prev))
+                        # print self.ss
+                        # print self.mm
+                        # print self.hh
+                        # print self.dd
+
+                        # if self.ss > 59:
+                        #     self.mm = self.ss / 60 
+                        #     self.ss %= 60
+                        # if self.mm > 59:
+                        #     print 'asdsadsad'
+                        #     self.hh = self.mm / 60
+                        #     self.mm %= 60
+                        # if self.hh > 23:
+                        #     self.dd = self.hh / 24
+                        #     self.hh %= 24
+                        # print self.dd
+                        # print "Estimate Time : %d day %d:%d:%d" % (self.dd,self.hh,self.mm,self.ss)
                         if self.progresBar == True:
                             print "{}".format(self.progressDots)
                         CliPrint().purpleText("{} {} seconds elapsed".format(mySpinner, time.time() - self.startTime))
                     
-                    PV = [bcolors.OKGREEN, usrnms, passwd.rstrip(),req.status_code, self.postJson, bcolors.ENDC, bcolors.FAIL]
+                    PV = [bcolors.OKGREEN, usrnms, passwd.rstrip(),req.status_code, self.postJson, bcolors.ENDC, bcolors.FAIL,bcolors.HEADER]
                     
                     if (int(self.statusCode) == int(req.status_code)) or ((self.contentText != '' and self.contentText in req.text) or (self.notContentText != '' and self.notContentText not in req.text)) or ((self.contentHeader != '' and self.contentHeader in req.text) or (self.notContentHeader != '' and self.notContentHeader not in req.text)):
                         # reset session 
-                        self.ses = requests.session()
-                        
                         correctValue = None
                         self.progressDots += bcolors.OKGREEN +'*'+bcolors.ENDC
                               
@@ -294,6 +361,39 @@ class Brute:
                         print correctValue
                         #save credentials in the array
                         self.correctCredentials.append(correctValue)
+                        self.ses = requests.session()
+                        break
+                    elif self.redirectCheck == True and len(req.history)>0:
+                        correctValue = None
+                        print self.redirectCheck
+                        self.progressDots += bcolors.OKGREEN +'*'+bcolors.ENDC
+                              
+                        if self.verbose:
+                            correctValue = "{}Correct! redirect-code : {}, data: {}{}".format(PV[0],req.history,PV[4],PV[5])
+                        else:
+                            correctValue = "{}Correct! {}:{}{}".format(PV[0],PV[1],PV[2],PV[5])
+
+                        #print correct value in specified mode
+                        print correctValue
+                        #save credentials in the array
+                        self.correctCredentials.append(correctValue)
+                        self.ses = requests.session()
+                        break
+                    elif self.csrfEnabled and csrf_token == None:
+                        correctValue = None
+                        self.progressDots += bcolors.OKGREEN +'*'+bcolors.ENDC
+                              
+                        if self.verbose:
+                            correctValue = "{}Possible combination! can\'t find csrf_token' , data: {}{}".format(PV[7],PV[4],PV[5])
+                        else:
+                            correctValue = "{}Possible combination! {}:{}{}".format(PV[7],PV[1],PV[2],PV[5])
+
+                        #print correct value in specified mode
+                        print correctValue
+                        #save credentials in the array
+                        self.correctCredentials.append(correctValue)
+                        self.ses = requests.session()
+                        break
                     else:
                         self.progressDots += bcolors.FAIL +'.'+bcolors.ENDC
                         if self.verbose == True:
@@ -302,6 +402,11 @@ class Brute:
                         CliPrint().warnText("response-HTML: {}".format(req.text.encode('utf-8')))
                     if self.responseHeader == True:
                         CliPrint().warnText("response-header: {}".format(req.headers))
+                    if self.csrfEnabled == True:
+                        csrf_token = self.getCsrfToken(req, self.csrfSelector).val()
+
+                    #save current time value
+                    self.tm_prev=time.time()
 
 
         #print logo in the end
@@ -316,6 +421,10 @@ class Brute:
 if __name__ == "__main__":
     #print logo
     CliPrint().printLogo()
+
+    #check for updates
+    checkForUpdates()
+
     #create instance of the main class
     brt = Brute()
     #get all passed variables
@@ -343,38 +452,54 @@ if __name__ == "__main__":
         #set values to object variables
         if usrkey[0] == 'username':
             brt.setUsernames(usrkey[1]) 
-        if usrkey[0] == 'url':
+        elif usrkey[0] == 'url':
             brt.setUrl(usrkey[1]) 
-        if usrkey[0] == 'password':
+        elif usrkey[0] == 'password':
             brt.setPasswords(usrkey[1]) 
-        if usrkey[0] == 'post-data':
-            brt.setPostData(usrkey[1]) 
-        if usrkey[0] == 'csrf-selector':
+        elif usrkey[0] == 'data':
+            brt.setData(usrkey[1]) 
+        elif usrkey[0] == 'csrf-selector':
             brt.csrfSelector = usrkey[1] 
-        if usrkey[0] == 'csrf-token-name':
+        elif usrkey[0] == 'csrf-token-name':
             brt.setCsrf(usrkey[1]) 
-        if usrkey[0] == 'content-text':
+        elif usrkey[0] == 'content-text':
             brt.contentText = usrkey[1]
-        if usrkey[0] == 'not-content-header':
+        elif usrkey[0] == 'not-content-header':
             brt.notContentHeader = usrkey[1]
-        if usrkey[0] == 'content-header':
+        elif usrkey[0] == 'content-header':
             brt.contentText = usrkey[1]
-        if usrkey[0] == 'not-content-text':
+        elif usrkey[0] == 'not-content-text':
             brt.notContentHeader = usrkey[1]
-        if usrkey[0] == 'progress-bar':
+        elif usrkey[0] == 'progress-bar':
             brt.progresBar = True
-        if usrkey[0] == 'show-response-html':
+        elif usrkey[0] == 'show-response-html':
             brt.responseHtml = True
-        if usrkey[0] == 'show-response-header':
+        elif usrkey[0] == 'show-response-header':
             brt.responseHeader = True
-        if usrkey[0] == 'status-code':
+        elif usrkey[0] == 'status-code':
             brt.statusCode = usrkey[1]
-        if usrkey[0] == 'delay':
+        elif usrkey[0] == 'delay':
             brt.delaySec = usrkey[1]
+        elif usrkey[0] == 'cookie':
+            brt.cookie = usrkey[1]
+        elif usrkey[0] == 'method':
+            brt.method = usrkey[1] 
+        elif usrkey[0] == 'user-agent':
+            brt.useragent = usrkey[1] 
+        elif usrkey[0] == 'redirect-check':
+            brt.redirectCheck = usrkey[1] 
+        elif usrkey[0] == 'verbose':
+            brt.verbose = True 
+        elif usrkey[0] == 'debugging':
+            brt.debugging = True 
+        elif usrkey[0] == 'first-match':
+            brt.breakFirstMatch = True 
+        elif usrkey[0] == 'post-data':
+            CliPrint().errorText('Instead of post-data please use \'data\' ', True)
+        else:
+             CliPrint().errorText('We don\'t have an option like \'%s\' ' % (usrkey[0]), True)
 
-        brt.verbose = True if usrkey[0] == 'verbose' else False
-        brt.debugging = True if usrkey[0] == 'debugging' else False
-        brt.breakFirstMatch = True if usrkey[0] == 'first-match' else False
+
 
     #if program is in exec mode then execute it
     brt.startProccessing() if execProgram else None
