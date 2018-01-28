@@ -1,4 +1,4 @@
-#v1.0
+version=1.5
 nimda = """
 {}
  mm   m mmmmm  m    m mmmm     mm
@@ -7,13 +7,31 @@ nimda = """
  #  # #   #    # "" # #    #  #mm#
  #   ## mm#mm  #    # #mmm"  #    #.py
 
-{} v 1.0 {}
+{} v {} {}
 """
 import operator
 import requests
 import time
 import sys
 import os
+
+def checkForUpdates():
+    try:
+        req = requests.get("https://raw.githubusercontent.com/bichiko/nimda.py/master/nimda.py")
+        lines = req.text.split('\n')
+        for line in lines:
+            if "version" in line:
+                servVersion = float(line.split('=')[1]) 
+                if servVersion > version:
+                    usrans = raw_input("New version (%s) is avalialbe. Do you want to update it now? (Y/n)" % (servVersion))
+                    if usrans.lower() == 'y':
+                        f = open(__file__,"w+")
+                        f.write(req.text)
+                        f.close()
+                
+            break
+    except Exception:
+        print "Error: In update checking"
 
 class bcolors:
     HEADER  =   '\033[95m'
@@ -29,14 +47,14 @@ class bcolors:
 
 class CliPrint:
     def printLogo(self):
-        print nimda.format(bcolors.WARNING,bcolors.FAIL, bcolors.ENDC)
+        print nimda.format(bcolors.WARNING,bcolors.FAIL, version, bcolors.ENDC)
 
     def headerText(self, this):
         print "Trying combination of username(s) {} with provided passwords from {} file".format(this.usernames, this.passwordsTxt)
         print "Brute-forcing %s" % (this.url)
         print "Delay is  %s milliseconds" % (this.delaySec)
         print "Request method : %s" % (this.method.upper())
-
+        
 
     def errorText(self, text, ext = False):
         print bcolors.FAIL+str(text)+bcolors.ENDC
@@ -103,6 +121,13 @@ class Brute:
         self.sslVerify = False
         self.redirectCheck = True
         self.method = 'POST'
+        self.tm_now = time.time()
+        self.tm_prev = 0.0
+        self.ss = 0
+        self.mm = 0
+        self.hh = 0
+        self.dd = 0
+
 
 
     def getCookie(self):
@@ -290,9 +315,31 @@ class Brute:
                         CliPrint().headerText(self)
                         for cr in self.correctCredentials:
                             print ' - '+ cr
-
                         CliPrint().purpleText("{} : {}".format(usrnms, passwd.rstrip()))
                         CliPrint().purpleText("{} out of {}".format(self.requestsCounter, sizeOfDict*len(self.usernames)))
+
+                        # self.tm_now = time.time()
+                        # self.ss = (self.tm_now-self.tm_prev)*((sizeOfDict*len(self.usernames))-self.requestsCounter)
+                        # print self.tm_now
+                        # print self.tm_prev
+                        # print float((self.tm_now-self.tm_prev))
+                        # print self.ss
+                        # print self.mm
+                        # print self.hh
+                        # print self.dd
+
+                        # if self.ss > 59:
+                        #     self.mm = self.ss / 60 
+                        #     self.ss %= 60
+                        # if self.mm > 59:
+                        #     print 'asdsadsad'
+                        #     self.hh = self.mm / 60
+                        #     self.mm %= 60
+                        # if self.hh > 23:
+                        #     self.dd = self.hh / 24
+                        #     self.hh %= 24
+                        # print self.dd
+                        # print "Estimate Time : %d day %d:%d:%d" % (self.dd,self.hh,self.mm,self.ss)
                         if self.progresBar == True:
                             print "{}".format(self.progressDots)
                         CliPrint().purpleText("{} {} seconds elapsed".format(mySpinner, time.time() - self.startTime))
@@ -357,6 +404,9 @@ class Brute:
                     if self.csrfEnabled == True:
                         csrf_token = self.getCsrfToken(req, self.csrfSelector).val()
 
+                    #save current time value
+                    self.tm_prev=time.time()
+
 
         #print logo in the end
         CliPrint().printLogo() if self.verbose else None
@@ -370,6 +420,10 @@ class Brute:
 if __name__ == "__main__":
     #print logo
     CliPrint().printLogo()
+
+    #check for updates
+    checkForUpdates()
+
     #create instance of the main class
     brt = Brute()
     #get all passed variables
