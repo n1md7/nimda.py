@@ -1,4 +1,4 @@
-version=1.5
+version=1.4
 nimda = """
 {}
  mm   m mmmmm  m    m mmmm     mm
@@ -17,7 +17,7 @@ import os
 
 def checkForUpdates():
     try:
-        req = requests.get("https://raw.githubusercontent.com/bichiko/nimda.py/master/nimda.py")
+        req = requests.get("https://raw.githubusercontent.com/bichiko/nimda.py/master/nimda1.4.py")
         lines = req.text.split('\n')
         for line in lines:
             if "version" in line:
