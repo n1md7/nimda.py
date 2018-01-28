@@ -23,12 +23,13 @@ def checkForUpdates():
             if "version" in line:
                 servVersion = float(line.split('=')[1]) 
                 if servVersion > version:
-                    usrans = raw_input("New version (%s) is avalialbe. Do you want to update it now? (Y/n)" % (servVersion))
+                    usrans = raw_input("New version (%s) is avalialbe. Do you want to update it now? (Y/n) " % (servVersion))
                     if usrans.lower() == 'y':
                         f = open(__file__,"w+")
                         f.write(req.text)
                         f.close()
-                        print "Please run again"
+                        print "Nimda.py has been updated. v %s"%servVersion
+                        print "Please run it again"
                         sys.exit(0)
                 
             break
