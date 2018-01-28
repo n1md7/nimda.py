@@ -17,19 +17,20 @@ import os
 
 def checkForUpdates():
     try:
-        req = requests.get("https://raw.githubusercontent.com/bichiko/nimda.py/master/nimda1.4.py")
+        req = requests.get("https://raw.githubusercontent.com/bichiko/nimda.py/master/nimda.py")
         lines = req.text.split('\n')
         for line in lines:
             if "version" in line:
                 servVersion = float(line.split('=')[1]) 
                 if servVersion > version:
-                    usrans = raw_input("New version (%s) is avalialbe. Do you want to update it now? (Y/n) " % (servVersion))
+                    usrans = raw_input("New version (%s) is avalialbe. Do you want to update it now? (Y/n)" % (servVersion))
                     if usrans.lower() == 'y':
                         f = open(__file__,"w+")
                         f.write(req.text)
                         f.close()
-                        print "Please run it again"
+                        print "Please run again"
                         sys.exit(0)
+                
             break
     except Exception:
         print "Error: In update checking"
