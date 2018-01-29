@@ -1,4 +1,4 @@
-version=1.5
+version=1.6
 nimda = """
 {}
  mm   m mmmmm  m    m mmmm     mm
@@ -222,23 +222,6 @@ class Brute:
             CliPrint().errorText('Error: Can\'t parse response HTML document', True)
         return tag
 
-    def checkDefinedVariables(self):
-        # impVars = [
-        #             self.url,
-        #             self.usernames,
-        #             self.passwordsTxt,
-        #             [
-        #                 self.contentText,
-        #                 self.notContentText,
-        #                 self.notContentHeader,
-        #                 self.contentHeader
-        #             ]
-        #         ]
-        # CliPrint().errorText('url isn\'t defined or defined incorrectly', True) if impVars[0] == None else None
-        # CliPrint().errorText('username isn\'t defined or defined incorrectly', True) if impVars[1] == None else None
-        # CliPrint().errorText('password isn\'t defined or defined incorrectly', True) if impVars[2] == None else None
-        # CliPrint().errorText('content-text or not-content-text or content-header or not-content-header isn\'t defined or defined incorrectly', True) if (impVars[3][0] == impVars[3][1] and impVars[3][2] == impVars[3][3] and impVars[3][0] == '') else None
-        pass
 
     def correctValOutput(self,PV,text,redir = False, corct = True):
          # reset session 
@@ -259,9 +242,6 @@ class Brute:
 
 
     def startProccessing(self):
-        #check whether important variables are defined or not
-        self.checkDefinedVariables()
-
         # Print header/welcome text
         CliPrint().headerText(self)
 
@@ -349,28 +329,7 @@ class Brute:
                         CliPrint().purpleText("{} : {}".format(usrnms, passwd.rstrip()))
                         CliPrint().purpleText("{} out of {}".format(self.requestsCounter, sizeOfDict*len(self.usernames)))
 
-                        # self.tm_now = time.time()
-                        # self.ss = (self.tm_now-self.tm_prev)*((sizeOfDict*len(self.usernames))-self.requestsCounter)
-                        # print self.tm_now
-                        # print self.tm_prev
-                        # print float((self.tm_now-self.tm_prev))
-                        # print self.ss
-                        # print self.mm
-                        # print self.hh
-                        # print self.dd
-
-                        # if self.ss > 59:
-                        #     self.mm = self.ss / 60 
-                        #     self.ss %= 60
-                        # if self.mm > 59:
-                        #     print 'asdsadsad'
-                        #     self.hh = self.mm / 60
-                        #     self.mm %= 60
-                        # if self.hh > 23:
-                        #     self.dd = self.hh / 24
-                        #     self.hh %= 24
-                        # print self.dd
-                        # print "Estimate Time : %d day %d:%d:%d" % (self.dd,self.hh,self.mm,self.ss)
+                       
                         print "{}".format(self.progressDots) if self.progresBar == True else None
                             
                         CliPrint().purpleText("{} {} seconds elapsed".format(mySpinner, time.time() - self.startTime))
