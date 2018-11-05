@@ -1,4 +1,4 @@
-version=1.6
+version=1.7
 nimda = """
 {}
  mm   m mmmmm  m    m mmmm     mm
@@ -10,7 +10,9 @@ nimda = """
 {} v {} {}
 """
 
+
 try:
+    import argparse
     import operator
     import requests
     import datetime
@@ -382,75 +384,78 @@ if __name__ == "__main__":
     #set exec mode to True if there is at least one variable passed after filename
     execProgram = False if len(items) <= 1 else True
     
-    #start looping and parse all passed variables    
-    for x in range(1,len(items)):
-        usrkey = items[x].split('=', 1)
-        # if there is help keyword display help and stop the programm
-        if usrkey[0] == 'h' or usrkey[0] == 'help' or usrkey[0] == '-h' or usrkey[0] == '--help':
-            #try to open help file otherwise display error message
-            try:
-                helpFile = open("help", "r")
-            except Exception:
-                CliPrint().errorText("Couldn't open help file", True)
+    
+    # construct the argument parse and parse the arguments
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--username", required=True, help="specifiy username(s): ex. --username='lg_username=admin,root,nick'")
+    ap.add_argument("--password", required=True, help="file name with path or without it. ex: --password='lg_password=./dicts/pass.txt'")
+    ap.add_argument("--url", required=True, help="a form submit URL")
+    ap.add_argument("--data", required=False, default="action=submit", help="all form data excepr username and password like: action=submit&access=2")
+    ap.add_argument("--method", required=False, default='POST', help="method: post or get. default post")
+    ap.add_argument("--csrf-selector", required=False, help="element query selector inside document. ex: div.login-form#csrf")
+    ap.add_argument("--csrf-token-name", required=False, help="form element name for csrf token")
+    ap.add_argument("--content-text", required=False, help="if response contains specified text then password is assumed as correct: ex welcome")
+    ap.add_argument("--not-content-text", required=False, help="if response doesnt contain specified text then password is assumed as correct")
+    ap.add_argument("--content-header", required=False, help="if response header contains specified text then password is assumed as correct")
+    ap.add_argument("--progress-bar", required=False, default=False, help="show progress bar")
+    ap.add_argument("--show-response-html", required=False, default=False, help="show response html content")
+    ap.add_argument("--show-response-header", required=False, help="show header text")
+    ap.add_argument("--status-code", required=False, default=302, help="assume password as correct if servers respons is specified status code. default 302")
+    ap.add_argument("--delay", required=False, default=0, help="delay: spevifay delay per request in milliseconds. ex --delay=100")
+    ap.add_argument("--cookie", required=False, help="specifiy cookies. --cookie='PHPSESSID=jksagdjksagdjkgjksg;usr=12'")
+    ap.add_argument("--user-agent", required=False, help="specify user agent")
+    ap.add_argument("--redirect-check", required=False, help="check redirects")
+    ap.add_argument("--verbose", required=False, default=False, help="show all info")
+    ap.add_argument("--debugging", required=False, default=False, help="print all info for debugging")
+    ap.add_argument("--first-match", required=False, default=True, help="stop when first credentials match")
+    
+    args = vars(ap.parse_args())
 
-            with helpFile:
-                for line in helpFile:
-                    print line
-                execProgram = False
-            helpFile.close()
-            break
-        #set values to object variables
-        if usrkey[0] == 'username':
-            brt.setUsernames(usrkey[1]) 
-        elif usrkey[0] == 'url':
-            brt.setUrl(usrkey[1]) 
-        elif usrkey[0] == 'password':
-            brt.setPasswords(usrkey[1]) 
-        elif usrkey[0] == 'data':
-            brt.setData(usrkey[1]) 
-        elif usrkey[0] == 'csrf-selector':
-            brt.csrfSelector = usrkey[1] 
-        elif usrkey[0] == 'csrf-token-name':
-            brt.setCsrf(usrkey[1]) 
-        elif usrkey[0] == 'content-text':
-            brt.contentText = usrkey[1]
-        elif usrkey[0] == 'not-content-header':
-            brt.notContentHeader = usrkey[1]
-        elif usrkey[0] == 'content-header':
-            brt.contentText = usrkey[1]
-        elif usrkey[0] == 'not-content-text':
-            brt.notContentHeader = usrkey[1]
-        elif usrkey[0] == 'progress-bar':
-            brt.progresBar = True
-        elif usrkey[0] == 'show-response-html':
-            brt.responseHtml = True
-        elif usrkey[0] == 'show-response-header':
-            brt.responseHeader = True
-        elif usrkey[0] == 'status-code':
-            brt.statusCode = usrkey[1]
-        elif usrkey[0] == 'delay':
-            brt.delaySec = usrkey[1]
-        elif usrkey[0] == 'cookie':
-            brt.cookie = usrkey[1]
-        elif usrkey[0] == 'method':
-            brt.method = usrkey[1] 
-        elif usrkey[0] == 'user-agent':
-            brt.useragent = usrkey[1] 
-        elif usrkey[0] == 'redirect-check':
-            brt.redirectCheck = usrkey[1] 
-        elif usrkey[0] == 'verbose':
-            brt.verbose = True 
-        elif usrkey[0] == 'debugging':
-            brt.debugging = True 
-        elif usrkey[0] == 'first-match':
-            brt.breakFirstMatch = True 
-        elif usrkey[0] == 'post-data':
-            CliPrint().errorText('Instead of post-data please use \'data\' ', True)
-        else:
-             CliPrint().errorText('We don\'t have an option like \'%s\' ' % (usrkey[0]), True)
-
+    if('username' in args):
+        brt.setUsernames(args['username']) 
+    if('url' in args):
+        brt.setUrl(args['url']) 
+    if('password' in args):
+        brt.setPasswords(args['password']) 
+    if('data' in args):
+        brt.setData(args['data']) 
+    if('csrf-selector' in args):
+        brt.csrfSelector = args['csrf-selector'] 
+    if('csrf-token-name' in args):
+        brt.setCsrf(args['csrf-token-name']) 
+    if('content-text' in args):
+        brt.contentText = args['content-text']
+    if('not-content-text' in args):
+        brt.notContentHeader = args['not-content-text']
+    if('content-text' in args):
+        brt.contentHeader = args['content-text']
+    if('progress-bar' in args):
+        brt.progresBar = bool(args['progress-bar'])
+    if('show-response-html' in args):
+        brt.responseHtml = bool(args['show-response-html'])
+    if('show-response-header' in args):
+        brt.responseHeader = bool(args['show-response-header'])
+    if('status-code' in args):
+        brt.statusCode = args['status-code']
+    if('delay' in args):
+        brt.delaySec = args['delay']
+    if('cookie' in args):
+        brt.cookie = args['cookie']
+    if('method' in args):
+        brt.method = args['method'] 
+    if('user-agent' in args):
+        brt.useragent = args['user-agent'] 
+    if('redirect-check' in args):
+        brt.redirectCheck = args['redirect-check'] 
+    if('verbose' in args):
+        brt.verbose = bool(args['verbose']) 
+    if('debugging' in args):
+        brt.debugging = bool(args['debugging']) 
+    if('first-match' in args):
+        brt.breakFirstMatch = bool(args['first-match']) 
 
 
     #if program is in exec mode then execute it
     brt.startProccessing() if execProgram else None
+
         
