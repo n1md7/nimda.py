@@ -1,4 +1,5 @@
-version=1.7
+#!/usr/bin/env python
+version=1.8
 nimda = """
 {}
  mm   m mmmmm  m    m mmmm     mm
